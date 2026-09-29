@@ -1,6 +1,6 @@
 /* Offline support: cache the app shell, serve cache-first and refresh in the background.
    Bump CACHE when you deploy so clients pick up the new files. */
-const CACHE = 'habitapp-v1';
+const CACHE = 'habitapp-v2';
 const ASSETS = [
   './',
   './index.html',

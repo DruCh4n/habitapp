@@ -365,3 +365,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Install banner ---------- */
+.install {
+  display: flex; align-items: center; gap: 12px;
+  margin: 10px 8px 2px; padding: 12px 8px 12px 14px;
+  background: #23253a; border: 2px solid #3d4266; border-radius: var(--radius);
+}
+.install .lead { color: var(--accent); width: 28px; height: 28px; }
+.install .itxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 14px; color: #cfd3ea; line-height: 1.35; }
+.install .itxt > b { font-size: 16px; color: var(--text); }
+.install .btn { min-height: 42px; padding: 0 14px; font-size: 15px; flex: none; }
+.install .ix { width: 36px; height: 36px; display: grid; place-items: center; color: var(--muted); flex: none; }
+.install .ix .ic { width: 20px; height: 20px; }

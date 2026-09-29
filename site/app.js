@@ -425,9 +425,24 @@ function emptyState() {
 
 const fab = () => `<button class="fab" data-action="add-menu" aria-label="Add">${ic('plus')}</button>`;
 
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function installBanner() {
+  if (isStandalone() || state.installDismissed) return '';
+  let text, btn = '';
+  if (ui.installEvt) {
+    text = '<b>Install HabitApp</b><span>Add it to your home screen for quick, offline access.</span>';
+    btn = `<button class="btn primary" data-action="install">${ic('install')} Install</button>`;
+  } else if (isIOS()) {
+    text = '<b>Add to Home Screen</b><span>In Safari, tap the <b>Share</b> button, then <b>Add to Home Screen</b>.</span>';
+  } else return '';
+  return `<div class="install">${ic('install', 'lead')}<div class="itxt">${text}</div>${btn}<button class="ix" data-action="install-dismiss" aria-label="Dismiss">${ic('close')}</button></div>`;
+}
+
 function viewToday() {
   const k = ui.date;
-  let html = headerMain(dayTitle(k)) + '<main>';
+  let html = headerMain(dayTitle(k)) + '<main>' + installBanner();
   if (!state.habits.length && !state.todos.length) return html + emptyState() + '</main>';
 
   const todos = todosFor(k);
@@ -576,7 +591,7 @@ function viewSettings() {
       <button data-action="move" data-id="${h.id}" data-d="1" ${i === state.habits.length - 1 ? 'disabled' : ''} aria-label="Move down">${ic('chevDown')}</button>
       <button data-action="edit-habit" data-id="${h.id}" aria-label="Edit">${ic('edit')}</button>
     </div>`).join('') || '<div class="card-text">No habits yet.</div>';
-  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const standalone = isStandalone();
   return headerSimple('Settings', 'chevLeft') + `</header><main class="plain">
     <h3>Habits</h3>${list}
     <div class="stack" style="margin-top:8px">
@@ -585,7 +600,7 @@ function viewSettings() {
     </div>
     <h3>Install</h3>
     <div class="card-text">${standalone ? 'Installed — you are running HabitApp from your home screen. 🎉' :
-      '<b>iPhone / iPad:</b> open this page in Safari, tap the <b>Share</b> button, then <b>Add to Home Screen</b>.<br><b>Android:</b> tap the browser menu (⋮) and choose <b>Install app</b> or <b>Add to Home screen</b>.'}</div>
+      '<b>iPhone / iPad:</b> open this page in Safari, tap the <b>Share</b> button, then <b>Add to Home Screen</b>.<br><b>Android:</b> open it in <b>Chrome</b> (not inside another app), tap the menu (⋮) and choose <b>Install app</b> or <b>Add to Home screen</b>.<br><b>Samsung Internet:</b> tap the menu (≡) → <b>Add page to</b> → <b>Home screen</b>.'}</div>
     ${ui.installEvt ? `<button class="btn primary block" style="margin-top:8px" data-action="install">${ic('install')} Install app</button>` : ''}
     <h3>Data</h3>
     <div class="stack">
@@ -1022,7 +1037,15 @@ const ACTIONS = {
     if (!confirm('Erase ALL habits, history and to-dos from this device? This cannot be undone.')) return;
     state = defaultState(); save(); ui.view = 'today'; render(); toast('All data erased');
   },
-  'install': async () => { const e = ui.installEvt; if (!e) return; e.prompt(); await e.userChoice; ui.installEvt = null; render(); },
+  'install': async () => {
+    const e = ui.installEvt;
+    if (!e) { toast('Use your browser menu → Install app / Add to Home screen'); return; }
+    e.prompt();
+    const { outcome } = await e.userChoice;
+    ui.installEvt = null; render();
+    if (outcome === 'accepted') toast('Installing HabitApp…');
+  },
+  'install-dismiss': () => { state.installDismissed = true; save(); render(); },
   'rmode': el => { ui.reportMode = el.dataset.mode; render(); },
   'rnav': el => {
     const dir = Number(el.dataset.dir);
@@ -1072,7 +1095,8 @@ document.addEventListener('touchend', e => {
 
 document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
 window.addEventListener('storage', e => { if (e.key === STORE_KEY) { state = load(); render(); } });
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ui.installEvt = e; if (ui.view === 'settings') render(); });
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); ui.installEvt = e; render(); });
+window.addEventListener('appinstalled', () => { ui.installEvt = null; render(); toast('HabitApp installed — open it from your home screen'); });
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.warn('SW registration failed', err)));

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Track habits, counters, quit-habit timers and to-dos. Works offline.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Habits">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <title>HabitApp</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+
+  <div id="drawer" aria-hidden="true">
+    <div class="drawer-bg" data-action="drawer-close"></div>
+    <nav class="drawer-panel" aria-label="Main menu"></nav>
+  </div>
+
+  <div id="sheet-root"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <noscript><p style="padding:24px;color:#fff">HabitApp needs JavaScript enabled.</p></noscript>
+  <script src="app.js" defer></script>
+</body>
+</html>
